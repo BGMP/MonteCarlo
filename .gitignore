@@ -1,0 +1,10 @@
+*.7z
+*.depend
+*.layout
+*.html
+*.log
+obj/*
+bin/*
+build/*
+.DS_Store
+tags

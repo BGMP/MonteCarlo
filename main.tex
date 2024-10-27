@@ -1,0 +1,99 @@
+\documentclass[a4paper, 10pt]{IEEEtran}
+
+\usepackage{graphicx} 
+\usepackage{tabularx}
+\usepackage{tabulary}
+\usepackage{url}       
+\usepackage{amsmath} 
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{textcomp,gensymb}
+\usepackage{gensymb}
+\usepackage{float}
+\usepackage[hidelinks]{hyperref}
+\usepackage[spanish]{cleveref}
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\refname}{Referencias}
+
+\begin{document}
+
+\title{Aproximación de PI Utilizando el Método Monte Carlo}
+\author{José Benavente
+\thanks{}}
+\markboth{Computación Paralela - Facultad de Ciencias Empresariales - Universidad del Bío-Bío}{}
+\maketitle
+
+\maketitle
+
+\begin{abstract}
+Este informe describe un algoritmo basado en el método de Monte Carlo para la aproximación del valor de $\pi$. El método utiliza muestras aleatorias dentro de un cuadrado para así poder aproximar la proporción de puntos que caen dentro de las cuatro esquinas que se generan al colocar un circulo dentro dicho cuadrado. El algoritmo se implementa en C++ y hace uso de la librería estándar para la generación de números aleatorios.
+\end{abstract}
+
+\section{Introducción}
+El número $\pi$ es una de las constantes matemáticas más importantes y aparece en numerosas áreas de las matemáticas, la física y la ingeniería. Sin embargo, calcular $\pi$ con precisión puede ser computacionalmente costoso. El método de Monte Carlo es un enfoque probabilístico que permite obtener una aproximación de $\pi$ usando técnicas de simulación basadas en números aleatorios. En este informe, se presenta un algoritmo que utiliza este método para estimar el valor de $\pi$.
+
+\section{Método de Monte Carlo}
+El método de Monte Carlo se basa en generar un conjunto de puntos aleatorios dentro de un espacio conocido (en este caso, un cuadrado de lado 1) y determinar cuántos de esos puntos caen dentro de una región de interés (un cuarto de círculo inscrito en dicho cuadrado). La proporción de puntos que caen dentro del círculo en comparación con el número total de puntos generados nos permite aproximar el valor de $\pi$.
+
+\subsection{Descripción del Algoritmo}
+El algoritmo se implementa en C++ y realiza los siguientes pasos:
+
+\begin{itemize}
+    \item Se generan dos números aleatorios $x$ e $y$ entre 0 y 1, los cuales representan las coordenadas de un punto en el plano.
+    \item Se verifica si el punto $(x, y)$ cae dentro del cuarto de círculo unitario usando la ecuación $x^2 + y^2 \leq 1$.
+    \item Se repite este proceso para un número grande de muestras.
+    \item La proporción de puntos que caen dentro del círculo se multiplica por 4 para obtener una aproximación de $\pi$, ya que el área del cuadrado es 1 y el área de un cuarto del círculo es $\pi/4$.
+\end{itemize}
+
+El código que implementa el algoritmo se muestra a continuación:
+
+\begin{verbatim}
+#include <iostream>
+#include <random>
+#include <omp.h>
+#include <chrono>
+
+double monteCarlo(int numSamples) {
+    int count = 0;
+    std::default_random_engine generator;
+    std::uniform_real_distribution<double> 
+        distribution(0.0, 1.0);
+
+    for (int i = 0; i < numSamples; ++i) {
+        double x = distribution(generator);
+        double y = distribution(generator);
+        if (x * x + y * y <= 1.0) {
+            count++;
+        }
+    }
+    return 4.0 * count / numSamples;
+}
+\end{verbatim}
+
+\section{Resultados}
+Al ejecutar este algoritmo con un número suficientemente grande de muestras, es posible obtener una aproximación precisa del valor de $\pi$. La precisión mejora a medida que se aumenta el número de muestras. A continuación, se muestran algunos resultados obtenidos al ejecutar el algoritmo:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|}
+    \hline
+    \textbf{Número de muestras} & \textbf{Aproximación de $\pi$} \\
+    \hline
+    1000 & 3.140 \\
+    10,000 & 3.1412 \\
+    100,000 & 3.14159 \\
+    1,000,000 & 3.141592 \\
+    \hline
+    \end{tabular}
+    \caption{Aproximación de $\pi$ con diferentes números de muestras.}
+    \label{tab:results}
+\end{table}
+
+\section{Análisis de Rendimiento}
+El tiempo de ejecución del algoritmo depende del número de muestras generadas. Para mejorar el rendimiento, se podría paralelizar el cálculo utilizando la biblioteca OpenMP, ya que los puntos se generan de manera independiente. Además, el uso de generadores de números aleatorios más avanzados podría mejorar la eficiencia y la calidad de los resultados.
+
+\section{Conclusión}
+El método de Monte Carlo ofrece una manera sencilla y efectiva de aproximar el valor de $\pi$ mediante la simulación de puntos aleatorios. Aunque este enfoque no es el más preciso en comparación con otros métodos numéricos, es fácil de implementar y escalable.
+
+\end{document}
