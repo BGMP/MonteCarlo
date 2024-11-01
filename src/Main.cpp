@@ -38,6 +38,8 @@ int main(void);
 
 int main() {
 
+    #ifdef SECUENCIAL
+
     // Time measurement for Sequential Monte Carlo PI Calculation
 
     auto startSeq = std::chrono::high_resolution_clock::now();
@@ -50,6 +52,9 @@ int main() {
 
     std::cout << "---" << std::endl;
 
+    #endif
+
+    #ifdef PARALELO
 
     // Time measurement for Parallel Monte Carlo PI Calculation
 
@@ -62,4 +67,6 @@ int main() {
     std::cout << "Tiempo de Ejecución: " << elapsedPar.count() << " segundos" << std::endl;
 
     return 0;
+
+    #endif
 }

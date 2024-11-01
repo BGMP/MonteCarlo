@@ -1,92 +1,79 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-
 <CodeBlocks_project_file>
-
 	<FileVersion major="1" minor="6" />
-
 	<Project>
-
 		<Option title="MonteCarlo" />
-
 		<Option pch_mode="2" />
-
 		<Option compiler="gcc" />
 
 		<Build>
-
-			<Target title="Debug">
-
-				<Option output="bin/Debug/MonteCarlo" prefix_auto="1" extension_auto="1" />
-
-				<Option object_output="obj/Debug/" />
-
+			<Target title="Debug_Secuencial">
+				<Option output="bin/Debug_Secuencial/MonteCarloSecuencial" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug_Secuencial/" />
 				<Option type="1" />
-
 				<Option compiler="gcc" />
 
 				<Compiler>
-
 					<Add option="-g" />
-
+					<Add option="-pg" />
+					<Add option="-DSECUENCIAL" />
 				</Compiler>
 
 				<Linker>
 					<Add option="-fopenmp" />
+					<Add option="-pg" />
 				</Linker>
+			</Target>
 
+			<Target title="Debug_Paralelo">
+				<Option output="bin/Debug_Paralelo/MonteCarloParalelo" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug_Paralelo/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-pg" />
+					<Add option="-DPARALELO" />
+				</Compiler>
+
+				<Linker>
+					<Add option="-fopenmp" />
+					<Add option="-pg" />
+				</Linker>
 			</Target>
 
 			<Target title="Release">
-
 				<Option output="bin/Release/MonteCarlo" prefix_auto="1" extension_auto="1" />
-
 				<Option object_output="obj/Release/" />
-
 				<Option type="1" />
-
 				<Option compiler="gcc" />
 
 				<Compiler>
-
 					<Add option="-O2" />
-
 				</Compiler>
 
 				<Linker>
-
 					<Add option="-s" />
 					<Add option="-fopenmp" />
-
 				</Linker>
-
 			</Target>
-
 		</Build>
 
 		<Compiler>
-
 			<Add option="-Wall" />
-
 			<Add option="-fexceptions" />
-
 			<Add option="-fopenmp" />
-
 		</Compiler>
 
 		<Unit filename="include/Main.h" />
-
 		<Unit filename="include/math_MonteCarloParallel.h" />
-
 		<Unit filename="include/math_MonteCarloSequential.h" />
-
 		<Unit filename="src/Main.cpp" />
-
 		<Unit filename="src/math_MonteCarloParallel.cpp" />
-
 		<Unit filename="src/math_MonteCarloSequential.cpp" />
 
 		<Extensions />
-
 	</Project>
-
 </CodeBlocks_project_file>
+

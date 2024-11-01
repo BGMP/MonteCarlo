@@ -37,23 +37,31 @@ double runParallelMonteCarloPICalculation(int n);
 
 double runParallelMonteCarloPICalculation(int n) {
     int count = 0;
-    std::default_random_engine generator;
-    std::uniform_real_distribution<double> distribution(0.0, 1.0);
 
-    #pragma omp parallel
+    // Usamos reducción para evitar contención en el acumulador
+    #pragma omp parallel reduction(+:count)
     {
+        // Generador de números aleatorios por hilo
+        std::default_random_engine generator(omp_get_thread_num() + std::random_device{}());
+        std::uniform_real_distribution<double> distribution(0.0, 1.0);
+
         int localCount = 0;
-        unsigned seed = generator() + omp_get_thread_num();
-        for (int i = 0; i < n / omp_get_num_threads(); ++i) {
+
+        // División de trabajo con omp for
+        #pragma omp for
+        for (int i = 0; i < n; ++i) {
             double x = distribution(generator);
             double y = distribution(generator);
-        if (x * x + y * y <= 1.0) {
-            localCount++;
-        }
-    }
 
-    #pragma omp atomic
+            if (x * x + y * y <= 1.0) {
+                localCount++;
+            }
+        }
+
+        // El valor de localCount se suma a count automáticamente gracias a la reducción
         count += localCount;
     }
-  return 4.0 * count / n;
+
+    return CIRCLE_MULTIPLIER * count / n;
 }
+

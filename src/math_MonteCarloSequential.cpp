@@ -48,5 +48,5 @@ double runSequentialMonteCarloPICalculation(int n) {
     }
   }
 
-  return 4.0 * count / n;
+  return CIRCLE_MULTIPLIER * count / n;
 }
