@@ -3,3 +3,9 @@ This project implements the Monte Carlo method for approximating the value of $\
 
 ## Building
 For GUI based building, use the Code::Blocks project file.
+
+## Notes
+
+This project was written as part of the Masters in Computer Science course "Parallel Computing" at the University of the Bío-Bío.
+
+Some of the TeX/PDF files are in Spanish, as the course was taught in Spanish.
