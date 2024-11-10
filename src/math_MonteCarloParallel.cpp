@@ -12,6 +12,7 @@
 
 #include "../include/math_MonteCarloParallel.h"
 #include <omp.h>
+#include <random>
 
 ////////////////////////////////////////////////////////////////////////////////
 // Macros:
@@ -25,7 +26,7 @@
 // Prototypes:
 ////////////////////////////////////////////////////////////////////////////////
 
-double runParallelMonteCarloPICalculation(int n);
+double runParallelMonteCarloPICalculation(int n, int num_threads);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals:
@@ -35,33 +36,29 @@ double runParallelMonteCarloPICalculation(int n);
 // Procedures:
 ////////////////////////////////////////////////////////////////////////////////
 
-double runParallelMonteCarloPICalculation(int n) {
-    int count = 0;
+double runParallelMonteCarloPICalculation(int n, int num_threads) {
+    double step, pi, sum[num_threads];
 
-    // Usamos reducción para evitar contención en el acumulador
-    #pragma omp parallel reduction(+:count)
-    {
-        // Generador de números aleatorios por hilo
-        std::default_random_engine generator(omp_get_thread_num() + std::random_device{}());
-        std::uniform_real_distribution<double> distribution(0.0, 1.0);
+	pi = 0.0;
+	step = 1.0 / (double) n;
+	omp_set_num_threads(num_threads);
 
-        int localCount = 0;
+    #pragma omp parallel
+	{
+		double x;
+		int id, i;
 
-        // División de trabajo con omp for
-        #pragma omp for
-        for (int i = 0; i < n; ++i) {
-            double x = distribution(generator);
-            double y = distribution(generator);
+		id = omp_get_thread_num();
 
-            if (x * x + y * y <= 1.0) {
-                localCount++;
-            }
-        }
+		for (i = id, sum[id] = 0.0; i < n; i = i + num_threads) {
+			x = (i + 0.5) * step;
+			sum[id] += 4.0 / (1.0 + x * x);
+		}
+	}
 
-        // El valor de localCount se suma a count automáticamente gracias a la reducción
-        count += localCount;
-    }
+	for (int i = 0; i < num_threads; i++) {
+		pi += sum[i] * step;
+	}
 
-    return CIRCLE_MULTIPLIER * count / n;
+	return pi;
 }
-

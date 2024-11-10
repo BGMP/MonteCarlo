@@ -59,7 +59,7 @@ int main() {
     // Time measurement for Parallel Monte Carlo PI Calculation
 
     auto startPar = std::chrono::high_resolution_clock::now();
-    double piParallel = runParallelMonteCarloPICalculation(N);
+    double piParallel = runParallelMonteCarloPICalculation(N, NUM_THREADS);
     auto endPar = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsedPar = endPar - startPar;
 
