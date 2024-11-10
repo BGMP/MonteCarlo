@@ -5,7 +5,7 @@ This project implements the Monte Carlo method for approximating the value of $\
 For GUI based building, use the Code::Blocks project file.
 
 ## Code Explanation
-In the main file (`main.cpp`), the flow of execution is conditioned by the `SECUENCIAL` and `PARALELO` macros, which determine which code section will run. The purpose of this approach is to enable direct comparison between the sequential and parallel versions of the $\pi$ calculation. Below is a breakdown of each section:
+In the main file (`Main.cpp`), the flow of execution is conditioned by the `SECUENCIAL` and `PARALELO` macros, which determine which code section will run. The purpose of this approach is to enable direct comparison between the sequential and parallel versions of the $\pi$ calculation. Below is a breakdown of each section:
 
 1. **Sequential Version (`SECUENCIAL`)**:
     - If the `SECUENCIAL` macro is defined, the code runs the $\pi$ calculation using a single processing thread.
