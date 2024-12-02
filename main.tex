@@ -121,11 +121,11 @@ La generación de puntos y su verificación para determinar si caen dentro del c
 Los experimentos se realizaron en un entorno de hardware y software específico para evaluar el rendimiento de las versiones secuencial y paralelizada del algoritmo. A continuación, se detallan las características de este entorno:
 
 \begin{itemize}
-  \item \textbf{Hardware:} Procesador AMD Ryzen 7 3700X de 8 núcleos a 3.6 GHz (modo nominal), con 32 MB de caché L3, 4 MB de caché L2 y 256 KB de caché L1d y L1i. La máquina es virtualizada, utilizando KVM como hipervisor, y cuenta con 8 GB de RAM asignada en un entorno de 64 bits.
-
-  \item \textbf{Sistema operativo:} Debian GNU/Linux 11 (Bullseye).
+  \item \textbf{Hardware:} Procesador Intel(R) Xeon(R) Gold 5118 de 12 núcleos a 2.30 GHz (modo nominal), con 33 MB de caché L3, 24 MB de caché L2 y 768 KB de caché L1d y L1i. La máquina es virtualizada, utilizando KVM como hipervisor, y cuenta con 62 GB de RAM asignada en un entorno de 64 bits.
   
-  \item \textbf{Compilador:} GCC versión 9.3.0, con soporte para OpenMP.
+  \item \textbf{Sistema operativo:} Ubuntu 22.04.5 LTS (GNU/Linux 5.10.0-28-amd64 x86\_64)
+  
+  \item \textbf{Compilador:} GCC versión 11.4.0, con soporte para OpenMP.
   
   \item \textbf{Librerías:} Se utiliza la biblioteca estándar de C++ para la generación de números aleatorios y la biblioteca OpenMP para implementar la paralelización.
   
