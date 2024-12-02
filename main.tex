@@ -1,4 +1,4 @@
-\documentclass[a4paper, 10pt]{IEEEtran}
+\documentclass[a4paper, 10pt, onecolumn]{IEEEtran}
 
 \usepackage{graphicx} 
 \usepackage{tabularx}
@@ -7,40 +7,67 @@
 \usepackage{amsmath} 
 \usepackage{amsfonts}
 \usepackage{amssymb}
-\usepackage{textcomp,gensymb}
+\usepackage{textcomp}
 \usepackage{gensymb}
 \usepackage{float}
 \usepackage[hidelinks]{hyperref}
 \usepackage[spanish]{cleveref}
 \usepackage{listings}
+\usepackage{titlesec} % For custom section titles
+
+% Configuration for code listings
 \lstset{
-	language=C++,
-	basicstyle=\ttfamily\footnotesize,
-	stepnumber=1,
-	tabsize=2,
-	breaklines=true,
-	breakatwhitespace=true,
-	showspaces=false,
-	showstringspaces=false,
-	frame=single,
-	captionpos=b
+  language=C++,
+  basicstyle=\ttfamily\footnotesize,
+  stepnumber=1,
+  tabsize=2,
+  breaklines=true,
+  frame=single,
+  captionpos=b
 }
-\renewcommand{\tablename}{Tabla}
-\renewcommand{\figurename}{Figura}
-\renewcommand{\refname}{Referencias}
+
+% Rename listing components
 \renewcommand{\lstlistingname}{Fragmento}
 \crefname{lstlisting}{Fragmento}{Fragmentos}
 \Crefname{lstlisting}{Fragmento}{Fragmentos}
 
+% Custom index names
+\renewcommand{\contentsname}{Índice}
+\renewcommand{\listfigurename}{Índice de Figuras}
+\renewcommand{\listtablename}{Índice de Tablas}
+\renewcommand{\lstlistlistingname}{Índice de Fragmentos}
+
+% Custom title formats
+\titleformat{\section}[block]
+{\bfseries\large} % Bold and large size
+{\thesection}{1em}{}
+
+% Custom abstract title
+\renewcommand{\abstractname}{Resumen}
+
 \begin{document}
+  
+  \title{Aproximación de PI Utilizando el Método Monte Carlo}
+  \author{José Benavente}
+  \markboth{Computación Paralela - Facultad de Ciencias Empresariales - Universidad del Bío-Bío}{}
+  \maketitle
+  
+  \newpage
+  
+  % General index
+  \tableofcontents
+  
+  % Index of Figures
+  \listoffigures
+  
+  % Index of Tables
+  \listoftables
+  
+  % Index of Code Listings
+  \lstlistoflistings
+  
+  \newpage
 
-\title{Aproximación de PI Utilizando el Método Monte Carlo}
-\author{José Benavente
-\thanks{}}
-\markboth{Computación Paralela - Facultad de Ciencias Empresariales - Universidad del Bío-Bío}{}
-\maketitle
-
-\maketitle
 
 \begin{abstract}
 Este informe describe un algoritmo basado en el método de Monte Carlo para la aproximación del valor de $\pi$. El método utiliza muestras aleatorias dentro de un cuadrado para así poder aproximar la proporción de puntos que caen dentro de las cuatro esquinas que se generan al colocar un circulo dentro dicho cuadrado. El algoritmo se implementa en C++ y hace uso de la librería estándar para la generación de números aleatorios.
@@ -61,8 +88,6 @@ El algoritmo se implementa en C++ y realiza los siguientes pasos:
     \item Se repite este proceso para un número grande de muestras.
     \item La proporción de puntos que caen dentro del círculo se multiplica por 4 para obtener una aproximación de $\pi$, ya que el área del cuadrado es 1 y el área de un cuarto del círculo es $\pi/4$.
 \end{itemize}
-
-\pagebreak
 
 A continuación, se muestra un extracto del código de la implementación secuencial del algoritmo en el \cref{lst:sequential}.
 
@@ -137,8 +162,6 @@ Este entorno permite analizar el rendimiento y la escalabilidad de la implementa
 \subsection{Datos de Prueba}
 Para analizar el comportamiento de la versión secuencial del algoritmo Monte Carlo, se realizaron pruebas con diferentes cantidades de muestras, variando entre $1000$ y $1.000.000.000$. Estos datos de prueba permiten observar cómo el tiempo de ejecución crece con el número de muestras, proporcionando información relevante sobre la eficiencia del algoritmo. A continuación, se muestran algunos valores utilizados en las pruebas:
 
-\pagebreak
-
 \begin{itemize}
   \item $n = 1.000$
   \item $n = 10.000$
@@ -156,7 +179,7 @@ Para el análisis de perfil de la versión secuencial, se utilizó la herramient
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.5\textwidth]{./img/secuencial.png}
+  \includegraphics[width=0.8\textwidth]{./img/secuencial.png}
   \caption{Perfil de tiempo de funciones en la versión secuencial.}
   \label{fig:sec_profile}
 \end{figure}
@@ -271,6 +294,15 @@ Para ilustrar la mejora lograda, podemos calcular el porcentaje de tiempo reduci
 \text{Reducción de tiempo} = \left(1 - \frac{\text{Tiempo paralelo}}{\text{Tiempo secuencial}}\right) \times 100
 \]
 Para $n = 1.000.000.000$, este cálculo muestra una reducción de aproximadamente el $98,75\%$, lo cual es particularmente significativo en aplicaciones prácticas que requieren una alta precisión y un número elevado de iteraciones.
+
+A continuación, en la \cref{fig:efficiency}, podemos ver la comparación de tiempos de ejecución entre el algoritmo secuencial y el paralelo.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./img/efficiency.png}
+  \caption{Gráfico comparativo de tiempos de ejecución: Secuencial vs Paralelo.}
+  \label{fig:efficiency}
+\end{figure}
 
 \subsection{Conclusión General}
 
