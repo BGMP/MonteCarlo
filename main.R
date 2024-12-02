@@ -1,5 +1,7 @@
 library(ggplot2)
 
+# Gráfico de Perfilado del Algoritmo Secuencial
+
 profiling_data <- data.frame(
   Function = c(
     "std::generate_canonical",
@@ -31,3 +33,29 @@ ggplot(profiling_data, aes(x = TimePercentage, y = reorder(Function, TimePercent
     axis.title.y = element_text(size = 12, face = "bold"),
     axis.text.y = element_text(size = 10)
   )
+
+# Datos de tiempos de ejecución
+samples <- c(1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000)
+sequential_time <- c(0.000347, 0.00346, 0.040129, 0.341221, 3.14948, 31.0033, 300.377)
+parallel_time <- c(0.02308, 0.02461, 0.029584, 0.03062, 0.053184, 0.303104, 3.76575)
+
+# Crear el gráfico con ejes personalizados
+plot(samples, sequential_time, type = "o", log = "xy", col = "blue", 
+     xlab = "Número de muestras (escala logarítmica)", 
+     ylab = "Tiempo de ejecución (s, escala logarítmica)", 
+     main = "Comparación de tiempos de ejecución: Secuencial vs Paralelo",
+     xaxt = "n", yaxt = "n") # Desactivar ticks automáticos
+
+# Personalizar ticks del eje X
+axis(1, at = samples, labels = format(samples, scientific = TRUE))
+
+# Personalizar ticks del eje Y
+y_ticks <- c(0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000)
+axis(2, at = y_ticks, labels = format(y_ticks, scientific = TRUE))
+
+# Agregar líneas paralelas
+lines(samples, parallel_time, type = "o", col = "red")
+
+# Agregar leyenda
+legend("bottomright", legend = c("Secuencial", "Paralelo"), 
+       col = c("blue", "red"), lty = 1, pch = 1)
