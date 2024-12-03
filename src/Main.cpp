@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
 
     #ifdef PARALELO
 
-    std::cout << "- Método: PARALELA" << std::endl;
+    std::cout << "- Método: PARALELO" << std::endl;
 
     // Parse num_threads
     int num_threads = (argc > 2) ? std::atoi(argv[2]) : NUM_THREADS;
