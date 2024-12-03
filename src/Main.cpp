@@ -26,7 +26,7 @@
 // Prototypes:
 ////////////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char* argv[]);
+int main(long argc, char* argv[]);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals:
@@ -36,8 +36,8 @@ int main(int argc, char* argv[]);
 // Procedures:
 ////////////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char* argv[]) {
-    int num_iterations = (argc > 1) ? std::atoi(argv[1]) : N;
+int main(long argc, char* argv[]) {
+    int num_iterations = (argc > 1) ? std::atol(argv[1]) : N;
 
     std::cout << "=== Algoritmo Monte Carlo para Cálculo de PI ===" << std::endl;
     std::cout << "- Puntos: " << num_iterations << " (N)" << std::endl;

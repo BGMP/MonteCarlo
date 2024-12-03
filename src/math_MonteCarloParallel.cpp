@@ -26,7 +26,7 @@
 // Prototypes:
 ////////////////////////////////////////////////////////////////////////////////
 
-double runParallelMonteCarloPICalculation(int n, int num_threads);
+double runParallelMonteCarloPICalculation(long n, int num_threads);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals:
@@ -36,7 +36,7 @@ double runParallelMonteCarloPICalculation(int n, int num_threads);
 // Procedures:
 ////////////////////////////////////////////////////////////////////////////////
 
-double runParallelMonteCarloPICalculation(int n, int num_threads) {
+double runParallelMonteCarloPICalculation(long n, int num_threads) {
     double step, pi, sum[num_threads];
 
 	pi = 0.0;
