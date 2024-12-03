@@ -13,6 +13,8 @@
 #include "../include/Main.h"
 #include "../include/math_MonteCarloSequential.h"
 #include "../include/math_MonteCarloParallel.h"
+#include <cstdlib>
+#include <iostream>
 
 ////////////////////////////////////////////////////////////////////////////////
 // Macros:
@@ -26,7 +28,7 @@
 // Prototypes:
 ////////////////////////////////////////////////////////////////////////////////
 
-int main(long argc, char* argv[]);
+int main(int argc, char* argv[]);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals:
@@ -36,8 +38,14 @@ int main(long argc, char* argv[]);
 // Procedures:
 ////////////////////////////////////////////////////////////////////////////////
 
-int main(long argc, char* argv[]) {
-    int num_iterations = (argc > 1) ? std::atol(argv[1]) : N;
+int main(int argc, char* argv[]) {
+    // Parse num_iterations (N)
+    char* end;
+    long num_iterations = (argc > 1) ? std::strtol(argv[1], &end, 10) : N;
+    if (*end != '\0' || num_iterations <= 0) {
+        std::cerr << "Error: Número inválido para N: " << argv[1] << std::endl;
+        return 1;
+    }
 
     std::cout << "=== Algoritmo Monte Carlo para Cálculo de PI ===" << std::endl;
     std::cout << "- Puntos: " << num_iterations << " (N)" << std::endl;
@@ -63,7 +71,12 @@ int main(long argc, char* argv[]) {
 
     std::cout << "- Método: PARALELA" << std::endl;
 
+    // Parse num_threads
     int num_threads = (argc > 2) ? std::atoi(argv[2]) : NUM_THREADS;
+    if (num_threads <= 0) {
+        std::cerr << "Error: Número inválido para NUM_THREADS: " << argv[2] << std::endl;
+        return 1;
+    }
 
     std::cout << "- Hebras: " << num_threads << " (NUM_THREADS)" << std::endl;
 
