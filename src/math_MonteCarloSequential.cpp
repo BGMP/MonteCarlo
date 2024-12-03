@@ -39,7 +39,7 @@ double runSequentialMonteCarloPICalculation(long n) {
   std::default_random_engine generator;
   std::uniform_real_distribution<double> distribution(0.0, 1.0);
 
-  for (int i = 0; i < n; ++i) {
+  for (long i = 0; i < n; ++i) {
     double x = distribution(generator);
     double y = distribution(generator);
 

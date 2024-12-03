@@ -46,7 +46,8 @@ double runParallelMonteCarloPICalculation(long n, int num_threads) {
     #pragma omp parallel
 	{
 		double x;
-		int id, i;
+		long i;
+		int id;
 
 		id = omp_get_thread_num();
 
