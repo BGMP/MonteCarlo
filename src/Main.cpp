@@ -39,10 +39,9 @@ int main(int argc, char* argv[]);
 ////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char* argv[]) {
-    // Parse num_iterations (N)
-    char* end;
+    char* end = NULL;
     long num_iterations = (argc > 1) ? std::strtol(argv[1], &end, 10) : N;
-    if (*end != '\0' || num_iterations <= 0) {
+    if (end == argv[1] || *end != '\0' || num_iterations <= 0) {
         std::cerr << "Error: Número inválido para N: " << argv[1] << std::endl;
         return 1;
     }
