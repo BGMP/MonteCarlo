@@ -1,6 +1,7 @@
 library(ggplot2)
 
-# Updated Profiling Data from gprof Results
+### Gráfico de perfilado (gprof)
+
 profiling_data <- data.frame(
   Function = c(
     "std::generate_canonical",
@@ -17,10 +18,8 @@ profiling_data <- data.frame(
   TimePercentage = c(31.73, 11.46, 8.90, 8.22, 7.63, 5.93, 5.13, 3.68, 3.49, 2.29)
 )
 
-# Sorting data by TimePercentage in descending order
 profiling_data <- profiling_data[order(profiling_data$TimePercentage, decreasing = TRUE), ]
 
-# Plotting the data
 ggplot(profiling_data, aes(x = TimePercentage, y = reorder(Function, TimePercentage))) +
   geom_bar(stat = "identity", fill = "grey30", color = "black") +
   labs(
@@ -36,35 +35,25 @@ ggplot(profiling_data, aes(x = TimePercentage, y = reorder(Function, TimePercent
     axis.text.y = element_text(size = 10)
   )
 
+### Gráfico de Eficiencia
 
-# Desactivar notación científica
-options(scipen = 999)
-
-# Datos de tiempos de ejecución
 samples <- c(1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000)
 sequential_time <- c(0.0018318, 0.0115891, 0.0645249, 0.576971, 5.699076, 56.8409, 573.238)
 parallel_time <- c(0.00276308, 0.00292199, 0.0036289, 0.00903737, 0.0395245, 0.253236, 2.68905)
 
-# Crear el gráfico con ejes personalizados
 plot(samples, sequential_time, type = "o", log = "xy", col = "blue", 
      xlab = "Número de muestras (escala logarítmica)", 
      ylab = "Tiempo de ejecución (s, escala logarítmica)", 
      main = "Comparación de tiempos de ejecución: Secuencial vs Paralelo",
      xaxt = "n", yaxt = "n") # Desactivar ticks automáticos
 
-# Personalizar ticks del eje X (mostrar números completos sin notación científica)
 axis(1, at = samples, labels = as.character(samples))
 
-# Personalizar ticks del eje Y con valores adecuados para escala logarítmica
-y_ticks <- c(0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000)
-# Escalar los valores para que correspondan a la escala logarítmica
-log_y_ticks <- 10^log10(y_ticks)
-axis(2, at = log_y_ticks, labels = as.character(y_ticks))
+y_ticks <- c(0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000)
+axis(2, at = y_ticks, labels = as.character(y_ticks))
 
-# Agregar líneas para los tiempos paralelos
 lines(samples, parallel_time, type = "o", col = "red")
 
-# Agregar leyenda
 legend("bottomright", legend = c("Secuencial", "Paralelo"), 
        col = c("blue", "red"), lty = 1, pch = 1)
 

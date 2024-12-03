@@ -215,7 +215,7 @@ A partir del análisis del perfil, se identifican algunas funciones que serían 
 En términos de dependencias, la única dependencia importante se encuentra en la acumulación de la cuenta total de puntos dentro del círculo. Para resolver esto, se puede utilizar una reducción en OpenMP, evitando así el uso de operaciones atómicas que puedan introducir contención y reducir el rendimiento. Por lo tanto y para resumir, se propone dividir las iteraciones del cálculo principal y la generación de puntos aleatorios entre hilos, combinando los resultados parciales al final del cálculo.
 
 \section{Paralelización del Algoritmo}
-Como se mencionó en la propuesta de paralelización, se utilizó OpenMP para implementar la versión paralela del método Monte Carlo para el cálculo aproximado de $\pi$. Dicha implementación puede apreciarse a continuación en el \cref{lst:parallel}. Cabe destacar que las pruebas fueron realizadas con 8 hilos de procesamiento.
+Como se mencionó en la propuesta de paralelización, se utilizó OpenMP para implementar la versión paralela del método Monte Carlo para el cálculo aproximado de $\pi$. Dicha implementación puede apreciarse a continuación en el \cref{lst:parallel}. Cabe destacar que las pruebas fueron realizadas con 40 hilos de procesamiento.
 
 \begin{lstlisting}[caption={Implementación Paralela de Monte Carlo en C++}, label={lst:parallel}]
 double parallel(long n, int num_threads) {
