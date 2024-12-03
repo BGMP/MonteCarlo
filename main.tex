@@ -70,7 +70,7 @@
 
 
 \begin{abstract}
-Este informe describe un algoritmo basado en el método de Monte Carlo para la aproximación del valor de $\pi$. El método utiliza muestras aleatorias dentro de un cuadrado para así poder aproximar la proporción de puntos que caen dentro de las cuatro esquinas que se generan al colocar un circulo dentro dicho cuadrado. El algoritmo se implementa en C++ y hace uso de la librería estándar para la generación de números aleatorios.
+Este informe describe un algoritmo basado en el método de Monte Carlo para la aproximación del valor de $\pi$. El método utiliza muestras aleatorias dentro de un cuadrado para estimar la proporción de puntos que caen dentro de las cuatro esquinas generadas al colocar un círculo inscrito dentro de dicho cuadrado. El algoritmo se implementa en \texttt{C++} y hace uso de la biblioteca estándar para la generación de números aleatorios. Además, se presenta una optimización paralela del algoritmo utilizando la biblioteca \texttt{OpenMP}, lo que permite distribuir el cálculo en múltiples hilos de ejecución y así mejorar significativamente el tiempo de ejecución para grandes volúmenes de muestras.
 \end{abstract}
 
 \section{Introducción}
@@ -92,22 +92,21 @@ El algoritmo se implementa en C++ y realiza los siguientes pasos:
 A continuación, se muestra un extracto del código de la implementación secuencial del algoritmo en el \cref{lst:sequential}.
 
 \begin{lstlisting}[caption={Implementación Secuencial de Monte Carlo en C++}, label={lst:sequential}]
-double sequential(int n) {
-	int count = 0;
-	
-	std::default_random_engine generator;
-	std::uniform_real_distribution<double> distribution(0.0, 1.0);
-	
-	for (int i = 0; i < n; ++i) {
-		double x = distribution(generator);
-		double y = distribution(generator);
-		
-		if (x * x + y * y <= 1.0) {
-			count++;
-		}
-	}
-	
-	return 4.0 * count / n;
+double sequential(long n) {
+  int count = 0;
+  std::default_random_engine generator;
+  std::uniform_real_distribution<double> distribution(0.0, 1.0);
+  
+  for (long i = 0; i < n; ++i) {
+    double x = distribution(generator);
+    double y = distribution(generator);
+    
+    if (x * x + y * y <= 1.0) {
+      count++;
+    }
+  }
+  
+  return CIRCLE_MULTIPLIER * count / n;
 }
 \end{lstlisting}
 
@@ -120,10 +119,10 @@ Al ejecutar este algoritmo con un número suficientemente grande de muestras, es
     \hline
     \textbf{Número de muestras} & \textbf{Aproximación de $\pi$} \\
     \hline
-    1.000 & 3,140 \\
-    10.000 & 3,1412 \\
-    100.000 & 3,14159 \\
-    1.000.000 & 3,141592 \\
+    1.000 & 3,192 \\
+    10.000 & 3,132 \\
+    100.000 & 3,1403 \\
+    1.000.000 & 3,14032 \\
     \hline
     \end{tabular}
     \caption{Aproximación de $\pi$ con diferentes números de muestras.}
@@ -179,12 +178,12 @@ Para el análisis de perfil de la versión secuencial, se utilizó la herramient
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{./img/secuencial.png}
+  \includegraphics[width=0.8\textwidth]{./img/secuencial_profiling.png}
   \caption{Perfil de tiempo de funciones en la versión secuencial.}
   \label{fig:sec_profile}
 \end{figure}
 
-Como se observa en la figura, la función que genera números aleatorios, \texttt{std::generate\_canonical}, es la que más tiempo consume, representando aproximadamente el 52.86\% del tiempo total de ejecución. Las funciones asociadas a la distribución aleatoria, como \texttt{std::uniform\_real\_distribution} y \texttt{std::\_\_detail::\_Mod}, también tienen una participación significativa, representando en conjunto alrededor del 30\% del tiempo. La función principal del cálculo secuencial, \texttt{runSequentialMonteCarloPICalculation}, representa cerca del 5.23\% del tiempo de ejecución total.
+Como se observa en la figura, la función que genera números aleatorios, \texttt{std::generate\_canonical}, es la que más tiempo consume, representando aproximadamente el 31.73\% del tiempo total de ejecución. Las funciones asociadas a la distribución aleatoria, como \texttt{std::uniform\_real\_distribution} y \texttt{std::\_\_detail::\_Mod}, también tienen una participación significativa, representando en conjunto alrededor del 27.6\% del tiempo. La función principal del cálculo secuencial, \texttt{runSequentialMonteCarloPICalculation}, representa cerca del 8.9\% del tiempo de ejecución total.
 
 Es importante destacar que las partes con mayor potencial de paralelización constituyen, en su conjunto, más de un 90\% del tiempo total de ejecución del algoritmo, por lo que estaríamos hablando de que es un problema embarazosamente paralelizable.
 
@@ -197,13 +196,13 @@ La siguiente tabla presenta los tiempos de ejecución obtenidos en la versión s
     \hline
     \textbf{Número de muestras ($n$)} & \textbf{Tiempo de ejecución (s)} \\
     \hline
-    1.000         & 0,000347 \\
-    10.000        & 0,003460 \\
-    100.000       & 0,040129 \\
-    1.000.000     & 0,341221 \\
-    10.000.000    & 3,14948 \\
-    100.000.000   & 31,0033 \\
-    1.000.000.000 & 300,377 \\
+    1.000         & 0,0018318 \\
+    10.000        & 0,0115891 \\
+    100.000       & 0,0645249 \\
+    1.000.000     & 0,576971 \\
+    10.000.000    & 5,699076 \\
+    100.000.000   & 56,8409 \\
+    1.000.000.000 & 573,238 \\
     \hline
   \end{tabular}
   \caption{Tiempos de ejecución en la versión secuencial}
@@ -219,28 +218,32 @@ En términos de dependencias, la única dependencia importante se encuentra en l
 Como se mencionó en la propuesta de paralelización, se utilizó OpenMP para implementar la versión paralela del método Monte Carlo para el cálculo aproximado de $\pi$. Dicha implementación puede apreciarse a continuación en el \cref{lst:parallel}. Cabe destacar que las pruebas fueron realizadas con 8 hilos de procesamiento.
 
 \begin{lstlisting}[caption={Implementación Paralela de Monte Carlo en C++}, label={lst:parallel}]
-double parallel(int n, int num_threads) {
-	double step, pi, sum[num_threads];
-	pi = 0.0;
-	step = 1.0 / (double) n;
-	omp_set_num_threads(num_threads);
-	
-	#pragma omp parallel
-	{
-		double x;
-		int id, i;
-		id = omp_get_thread_num();
-		
-		for (i = id, sum[id] = 0.0; i < n; i += num_threads) {
-			x = (i + 0.5) * step;
-			sum[id] += 4.0 / (1.0 + x * x);
-		}
-	}
-	
-	for (int i = 0; i < num_threads; i++)
-		pi += sum[i] * step;
-
-	return pi;
+double parallel(long n, int num_threads) {
+  double step, pi, sum[num_threads];
+  
+  pi = 0.0;
+  step = 1.0 / (double) n;
+  omp_set_num_threads(num_threads);
+  
+  #pragma omp parallel
+  {
+    double x;
+    long i;
+    int id;
+    
+    id = omp_get_thread_num();
+    
+    for (i = id, sum[id] = 0.0; i < n; i = i + num_threads) {
+      x = (i + 0.5) * step;
+      sum[id] += 4.0 / (1.0 + x * x);
+    }
+  }
+  
+  for (int i = 0; i < num_threads; i++) {
+    pi += sum[i] * step;
+  }
+  
+  return pi;
 }
 \end{lstlisting}
 
@@ -261,13 +264,13 @@ Para analizar el comportamiento de la versión paralela del algoritmo Monte Carl
 		\hline
 		\textbf{Número de muestras ($n$)} & \textbf{Tiempo de ejecución (s)} \\
 		\hline
-		1.000         & 0,02308 \\
-		10.000        & 0,02461 \\
-		100.000       & 0,029584 \\
-		1.000.000     & 0,030620 \\
-		10.000.000    & 0,053184 \\
-		100.000.000   & 0,303104 \\
-		1.000.000.000 & 3,76575 \\
+		1.000         & 0,00276308\\
+		10.000        & 0,00292199 \\
+		100.000       & 0,0036289 \\
+		1.000.000     & 0,00903737 \\
+		10.000.000    & 0,0395245 \\
+		100.000.000   & 0,253236 \\
+		1.000.000.000 & 2,68905 \\
 		\hline
 	\end{tabular}
 	\caption{Tiempos de ejecución en la versión paralela}
@@ -276,9 +279,9 @@ Para analizar el comportamiento de la versión paralela del algoritmo Monte Carl
 
 Al comparar los tiempos de ejecución de la implementación paralela presentados en la \cref{tab:parallel_execution_times} con los tiempos de la implementación secuencial, es evidente que la versión paralela ofrece mejoras significativas en eficiencia para valores grandes de $n$. Esto se debe a que la paralelización permite distribuir las iteraciones del algoritmo Monte Carlo entre múltiples hilos, reduciendo el tiempo total de cálculo.
 
-Para valores de $n$ pequeños, como $1.000$ y $10.000$, la diferencia de tiempo entre las versiones paralela y secuencial es mínima. Esto se debe a que, en estos casos, el tiempo de overhead asociado con la creación y coordinación de múltiples hilos en la versión paralela supera el beneficio obtenido por la división del trabajo. Sin embargo, a medida que $n$ aumenta, la paralelización muestra su ventaja. Por ejemplo, con $100.000.000$ muestras, la versión paralela reduce el tiempo de ejecución a $0,303104$ segundos en comparación con los $31,0033$ segundos de la versión secuencial, representando una mejora sustancial.
+Para valores de $n$ pequeños, como $1.000$ y $10.000$, la diferencia de tiempo entre las versiones paralela y secuencial es mínima. Esto se debe a que, en estos casos, el tiempo de overhead asociado con la creación y coordinación de múltiples hilos en la versión paralela supera el beneficio obtenido por la división del trabajo. Sin embargo, a medida que $n$ aumenta, la paralelización muestra su ventaja. Por ejemplo, con $100.000.000$ muestras, la versión paralela reduce el tiempo de ejecución a $0,253236$ segundos en comparación con los $56,8409$ segundos de la versión secuencial, representando una mejora sustancial.
 
-En el caso extremo de $1.000.000.000$ de muestras, el tiempo de la implementación paralela es $3,76575$ segundos frente a los $300,377$ segundos de la versión secuencial. Esto evidencia que la paralelización es particularmente efectiva para valores significativamente más grandes, permitiendo una aceleración cercana a $80$ veces en este ejemplo. Estos resultados destacan la efectividad de OpenMP para paralelizar el algoritmo Monte Carlo y reducir los tiempos de ejecución en aplicaciones de cómputo intensivo.
+En el caso extremo de $1.000.000.000$ de muestras, el tiempo de la implementación paralela es $2,68905$ segundos frente a los $573,238$ segundos de la versión secuencial. Esto evidencia que la paralelización es particularmente efectiva para valores significativamente más grandes, permitiendo una aceleración cercana a $213$ veces en este ejemplo. Estos resultados destacan la efectividad de OpenMP para paralelizar el algoritmo Monte Carlo y reducir los tiempos de ejecución en aplicaciones de cómputo intensivo.
 
 \section{Conclusión}
 
@@ -286,14 +289,14 @@ Los resultados obtenidos en la ejecución de ambas versiones del algoritmo Monte
 
 \subsection{Rendimiento de la Versión Secuencial}
 
-En la versión secuencial del algoritmo (ver \cref{tab:sequential_execution_times}), el tiempo de ejecución crece de manera directamente proporcional al tamaño de $n$. Esta proporcionalidad se debe a que cada punto generado requiere una operación independiente de comparación, lo cual significa que al duplicar $n$, el tiempo de ejecución se aproxima también a duplicarse, evidenciando una complejidad temporal lineal, $O(n)$. Esto se observa claramente en el comportamiento de los tiempos registrados, donde el incremento de $n$ lleva a un aumento predecible en el tiempo de ejecución, alcanzando los $300,377$ segundos para $n = 1.000.000.000$. Este comportamiento refleja las limitaciones de procesamiento secuencial en tareas de cálculo intensivo.
+En la versión secuencial del algoritmo (ver \cref{tab:sequential_execution_times}), el tiempo de ejecución crece de manera directamente proporcional al tamaño de $n$. Esta proporcionalidad se debe a que cada punto generado requiere una operación independiente de comparación, lo cual significa que al duplicar $n$, el tiempo de ejecución se aproxima también a duplicarse, evidenciando una complejidad temporal lineal, $O(n)$. Esto se observa claramente en el comportamiento de los tiempos registrados, donde el incremento de $n$ lleva a un aumento predecible en el tiempo de ejecución, alcanzando los $573,238$ segundos para $n = 1.000.000.000$. Este comportamiento refleja las limitaciones de procesamiento secuencial en tareas de cálculo intensivo.
 
 \subsection{Mejoras con Paralelización}
 Para ilustrar la mejora lograda, podemos calcular el porcentaje de tiempo reducido al comparar ambos métodos:
 \[
 \text{Reducción de tiempo} = \left(1 - \frac{\text{Tiempo paralelo}}{\text{Tiempo secuencial}}\right) \times 100
 \]
-Para $n = 1.000.000.000$, este cálculo muestra una reducción de aproximadamente el $98,75\%$, lo cual es particularmente significativo en aplicaciones prácticas que requieren una alta precisión y un número elevado de iteraciones.
+Para $n = 1.000.000.000$, este cálculo muestra una reducción de aproximadamente el $99,53\%$, lo cual es particularmente significativo en aplicaciones prácticas que requieren una alta precisión y un número elevado de iteraciones.
 
 A continuación, en la \cref{fig:efficiency}, podemos ver la comparación de tiempos de ejecución entre el algoritmo secuencial y el paralelo.
 
