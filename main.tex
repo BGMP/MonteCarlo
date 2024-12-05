@@ -75,7 +75,7 @@
 
 
 \begin{abstract}
-Este informe describe un algoritmo basado en el método de Monte Carlo para la aproximación del valor de $\pi$. El método utiliza muestras aleatorias dentro de un cuadrado para estimar la proporción de puntos que caen dentro de las cuatro esquinas generadas al colocar un círculo inscrito dentro de dicho cuadrado. El algoritmo se implementa en \texttt{C++} y hace uso de la biblioteca estándar para la generación de números aleatorios. Además, se presenta una optimización paralela del algoritmo utilizando la biblioteca \texttt{OpenMP}, lo que permite distribuir el cálculo en múltiples hilos de ejecución y así mejorar significativamente el tiempo de ejecución para grandes volúmenes de muestras.
+Este informe describe un algoritmo basado en el método de Monte Carlo para la aproximación del valor de $\pi$. El método utiliza muestras aleatorias dentro de un cuadrado para estimar la proporción de puntos que caen dentro de las cuatro esquinas generadas al colocar un círculo inscrito dentro de dicho cuadrado. El algoritmo se implementa en \texttt{C++} y hace uso de la biblioteca estándar para la generación de números aleatorios. Además, se presenta una optimización paralela del algoritmo utilizando la biblioteca \texttt{OpenMP} \cite{openmp}, lo que permite distribuir el cálculo en múltiples hilos de ejecución y así mejorar significativamente el tiempo de ejecución para grandes volúmenes de muestras.
 \end{abstract}
 
 \section{Introducción}
@@ -150,15 +150,15 @@ La generación de puntos y su verificación para determinar si caen dentro del c
 Los experimentos se realizaron en un entorno de hardware y software específico para evaluar el rendimiento de las versiones secuencial y paralelizada del algoritmo. A continuación, se detallan las características de este entorno:
 
 \begin{itemize}
-  \item \textbf{Hardware:} Procesador Intel(R) Xeon(R) Gold 5118 de 12 núcleos a 2.30 GHz (modo nominal), con 33 MB de caché L3, 24 MB de caché L2 y 768 KB de caché L1d y L1i. La máquina es virtualizada, utilizando KVM como hipervisor, y cuenta con 62 GB de RAM asignada en un entorno de 64 bits.
+  \item \textbf{Hardware:} Procesador Intel(R) Xeon(R) Gold 5118 de 12 núcleos a 2.30 GHz (modo nominal), con 33 MB de caché L3, 24 MB de caché L2 y 768 KB de caché L1d y L1i.
   
   \item \textbf{Sistema operativo:} Ubuntu 22.04.5 LTS (GNU/Linux 5.10.0-28-amd64 x86\_64)
   
-  \item \textbf{Compilador:} GCC versión 11.4.0, con soporte para OpenMP.
+  \item \textbf{Compilador:} GCC \cite{gcc} versión 11.4.0, con soporte para OpenMP.
   
   \item \textbf{Librerías:} Se utiliza la biblioteca estándar de C++ para la generación de números aleatorios y la biblioteca OpenMP para implementar la paralelización.
   
-  \item \textbf{Entorno de desarrollo:} Code::Blocks configurado con targets de perfilado para las versiones secuencial y paralelizada del algoritmo. Las opciones de compilación incluyen `-g` para depuración, `-pg` para generación de perfiles y `-fopenmp` para habilitar la paralelización.
+  \item \textbf{Entorno de desarrollo:} Code::Blocks \cite{codeblocks} configurado con targets de perfilado para las versiones secuencial y paralelizada del algoritmo. Las opciones de compilación incluyen `-g` para depuración, `-pg` para generación de perfiles y `-fopenmp` para habilitar la paralelización.
 \end{itemize}
 
 Este entorno permite analizar el rendimiento y la escalabilidad de la implementación paralela en comparación con la versión secuencial, evaluando tanto el tiempo de ejecución como la precisión de ambas versiones del algoritmo.
@@ -179,7 +179,7 @@ Para analizar el comportamiento de la versión secuencial del algoritmo Monte Ca
 Estos valores de $n$ han sido seleccionados para comprender el comportamiento del tiempo de ejecución y la precisión en distintos escenarios.
 
 \subsection{Perfil de los Algoritmos}
-Para el análisis de perfil de la versión secuencial, se utilizó la herramienta \texttt{gprof} y se generó un gráfico de distribución de tiempos de ejecución de las funciones. En la \cref{fig:sec_profile} se muestra la imagen obtenida del perfil de las funciones principales.
+Para el análisis de perfil de la versión secuencial, se utilizó la herramienta \texttt{gprof} \cite{gprof} y se generó un gráfico de distribución de tiempos de ejecución de las funciones. En la \cref{fig:sec_profile} se muestra la imagen obtenida del perfil de las funciones principales.
 
 \begin{figure}[H]
   \centering
@@ -322,7 +322,7 @@ Estos resultados demuestran la importancia de ajustar el número de hilos en fun
 
 \subsection{Visualización con Paraver}
 
-Para complementar el análisis del rendimiento, se utilizó la herramienta Paraver para visualizar el comportamiento del algoritmo Monte Carlo en configuraciones de 4, 8, 16 y 32 hilos. A continuación, se presentan las visualizaciones obtenidas:
+Para complementar el análisis del rendimiento, se utilizó la herramienta Paraver \cite{paraver} para visualizar el comportamiento del algoritmo Monte Carlo en configuraciones de 4, 8, 16 y 32 hilos. A continuación, se presentan las visualizaciones obtenidas:
 
 \begin{figure}[H]
   \centering
@@ -352,8 +352,6 @@ Para complementar el análisis del rendimiento, se utilizó la herramienta Parav
   \label{fig:paraver_32threads}
 \end{figure}
 
-\subsubsection{Análisis de las Visualizaciones}
-
 Las visualizaciones proporcionadas por Paraver permiten observar el comportamiento de las hebras durante la ejecución del algoritmo:
 
 \begin{itemize}
@@ -367,8 +365,6 @@ Las visualizaciones proporcionadas por Paraver permiten observar el comportamien
 \end{itemize}
 
 En resumen, las visualizaciones obtenidas con Paraver confirman que la configuración de 8 hilos es la más eficiente para el sistema utilizado, maximizando el aprovechamiento de recursos y minimizando el overhead asociado con la paralelización.
-
-\section{Conclusión}
 
 Los resultados obtenidos en la ejecución de ambas versiones del algoritmo Monte Carlo para el cálculo de $\pi$ permiten analizar la influencia del tamaño de la muestra ($n$) en el tiempo de ejecución y destacar las mejoras alcanzadas mediante la paralelización con OpenMP.
 
@@ -392,15 +388,70 @@ A continuación, en la \cref{fig:efficiency}, podemos ver la comparación de tie
   \label{fig:efficiency}
 \end{figure}
 
-\subsection{Conclusión General}
+\section{Conclusión}
+Los resultados obtenidos demuestran que la paralelización del algoritmo Monte Carlo para el cálculo de $\pi$ logra mejoras significativas en el rendimiento, especialmente para grandes volúmenes de datos. El análisis comparativo entre las implementaciones secuencial y paralela revela varios aspectos clave:
 
-Estos resultados demuestran la efectividad de la paralelización para acelerar el cálculo del algoritmo Monte Carlo en aplicaciones intensivas de cómputo, alcanzando una eficiencia cercana al máximo teórico en esta configuración. OpenMP, en este contexto, logra optimizar el uso de los recursos de hardware, haciendo posible el cálculo de alto volumen en tiempos considerablemente reducidos.
+\begin{itemize}
+  \item La versión paralela alcanza una reducción del tiempo de ejecución de hasta 99.53\% para $n = 1.000.000.000$ muestras, demostrando la efectividad de la paralelización en problemas computacionalmente intensivos.
+  
+  \item La escalabilidad del algoritmo paralelo muestra un comportamiento óptimo hasta los 8 hilos, punto en el cual se alcanza la mejor relación entre aceleración y eficiencia, con una aceleración de 3.60x y una eficiencia del 45\%.
+  
+  \item El análisis mediante Paraver confirma que la sobrecarga de sincronización y gestión de hilos se vuelve significativa más allá de los 8 hilos, resultando en una disminución de la eficiencia para configuraciones con 16 y 32 hilos.
+\end{itemize}
 
-TODO: 
- - Especificar nuevo build setup
- - Hablar de Afinidad
- - Especificar mejor el sistema y los hilos
- - Mostrar visualización con paraver
- - 
+La precisión en la aproximación de $\pi$ se mantiene consistente entre ambas implementaciones a medida que aumenta el número de muestras. Esto valida que la paralelización preserva la exactitud del método Monte Carlo mientras mejora significativamente su rendimiento.
+
+Las visualizaciones de Paraver han sido fundamentales para comprender el comportamiento del algoritmo bajo diferentes configuraciones de paralelización, permitiendo identificar los patrones de ejecución y los factores que afectan el rendimiento. Este análisis detallado proporciona información valiosa para la optimización de aplicaciones similares que requieren procesamiento intensivo de datos.
+
+En conclusión, la implementación paralela utilizando OpenMP demuestra ser una solución efectiva para mejorar el rendimiento del algoritmo Monte Carlo, especialmente en escenarios que requieren un alto número de muestras. La mejora en los tiempos de ejecución hace que esta aproximación sea práctica para aplicaciones que necesitan cálculos precisos de $\pi$ en tiempo real o con restricciones temporales significativas.
+
+\begin{thebibliography}{7}
+  \bibitem{paraver}
+  Barcelona Supercomputing Center,
+  \textit{Paraver: A flexible performance analysis tool},
+  2019.
+  \url{https://tools.bsc.es/paraver}
+  
+  \bibitem{codeblocks}
+  The Code::Blocks Team,
+  \textit{Code::Blocks: The open source, cross platform IDE},
+  2023.
+  \url{https://www.codeblocks.org/}
+  
+  \bibitem{openmp}
+  OpenMP Architecture Review Board,
+  \textit{OpenMP Application Programming Interface},
+  Version 5.2,
+  2021.
+  \url{https://www.openmp.org/specifications/}
+  
+  \bibitem{mpi}
+  Message Passing Interface Forum,
+  \textit{MPI: A Message-Passing Interface Standard},
+  Version 4.0,
+  2021.
+  \url{https://www.mpi-forum.org/docs/}
+  
+  \bibitem{mpi2prv}
+  Barcelona Supercomputing Center,
+  \textit{Extrae: Instrumentation package to trace programs},
+  2023.
+  \url{https://tools.bsc.es/extrae}
+  
+  \bibitem{gprof}
+  GNU Project,
+  \textit{GNU gprof},
+  2023.
+  \url{https://sourceware.org/binutils/docs/gprof/}
+  
+  LaTeX References Section
+  
+  \bibitem{gcc}
+  GNU Project,
+  \textit{GCC, the GNU Compiler Collection},
+  2023.
+  \url{https://gcc.gnu.org/onlinedocs/}
+\end{thebibliography}
+
 
 \end{document}
