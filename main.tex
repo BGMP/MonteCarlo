@@ -288,6 +288,86 @@ Para valores de $n$ pequeños, como $1.000$ y $10.000$, la diferencia de tiempo 
 
 En el caso extremo de $1.000.000.000$ de muestras, el tiempo de la implementación paralela es $2,68905$ segundos frente a los $573,238$ segundos de la versión secuencial. Esto evidencia que la paralelización es particularmente efectiva para valores significativamente más grandes, permitiendo una aceleración cercana a $213$ veces en este ejemplo. Estos resultados destacan la efectividad de OpenMP para paralelizar el algoritmo Monte Carlo y reducir los tiempos de ejecución en aplicaciones de cómputo intensivo.
 
+\subsection{Afinidad del Algoritmo}
+
+Para analizar el desempeño del algoritmo Monte Carlo con paralelización utilizando OpenMP, se realizaron pruebas variando el número de hilos empleados (4, 8, 16 y 32) y fijando el número de muestras en $10^9$. A continuación, se presenta un resumen de los resultados obtenidos.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|c|c|c|c|c|}
+    \hline
+    \textbf{Número de hilos} & \textbf{Tiempo de ejecución (s)} & \textbf{Aproximación de $\pi$} & \textbf{Aceleración} & \textbf{Eficiencia} \\
+    \hline
+    4  & 6,90326  & 3,1415 & 1,00  & 1,00 \\
+    8  & 1,91605  & 3,1418 & 3,60  & 0,45 \\
+    16 & 3,73090  & 3,1418 & 1,85  & 0,12 \\
+    32 & 3,07343  & 3,1418 & 2,25  & 0,07 \\
+    \hline
+  \end{tabular}
+  \caption{Rendimiento del algoritmo Monte Carlo con paralelización}
+  \label{tab:parallel_affinity}
+\end{table}
+
+Es importante destacar varios aspectos de los resultados:
+
+\begin{itemize}
+  \item \textbf{Aceleración}: Al incrementar el número de hilos, se observa una reducción significativa en el tiempo de ejecución, particularmente al pasar de 4 a 8 hilos, donde la aceleración alcanza un factor de $3,60$. Sin embargo, a partir de 16 hilos, el beneficio adicional disminuye debido al overhead de sincronización y al acceso compartido a recursos.
+  
+  \item \textbf{Eficiencia}: La eficiencia del paralelismo, calculada como la relación entre la aceleración y el número de hilos, disminuye con el incremento de hilos, lo que es esperado en arquitecturas paralelas debido a la sobrecarga de gestión de hilos y la posible saturación del hardware.
+  
+  \item \textbf{Configuración Óptima}: Con 8 hilos, el algoritmo logra un balance adecuado entre tiempo de ejecución y eficiencia, siendo esta configuración la más favorable para los recursos utilizados en esta prueba.
+\end{itemize}
+
+Estos resultados demuestran la importancia de ajustar el número de hilos en función de la arquitectura del sistema y las características del problema a resolver.
+
+\subsection{Visualización con Paraver}
+
+Para complementar el análisis del rendimiento, se utilizó la herramienta Paraver para visualizar el comportamiento del algoritmo Monte Carlo en configuraciones de 4, 8, 16 y 32 hilos. A continuación, se presentan las visualizaciones obtenidas:
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./img/paraver-4threads.png}
+  \caption{Visualización del perfilado con 4 hilos}
+  \label{fig:paraver_4threads}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./img/paraver-8threads.png}
+  \caption{Visualización del perfilado con 8 hilos}
+  \label{fig:paraver_8threads}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./img/paraver-16threads.png}
+  \caption{Visualización del perfilado con 16 hilos}
+  \label{fig:paraver_16threads}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./img/paraver-32threads.png}
+  \caption{Visualización del perfilado con 32 hilos}
+  \label{fig:paraver_32threads}
+\end{figure}
+
+\subsubsection{Análisis de las Visualizaciones}
+
+Las visualizaciones proporcionadas por Paraver permiten observar el comportamiento de las hebras durante la ejecución del algoritmo:
+
+\begin{itemize}
+  \item \textbf{Distribución de trabajo:} En la configuración de 4 hilos (\cref{fig:paraver_4threads}), se observa que las hebras están distribuidas de manera uniforme y que el tiempo de inactividad (regiones negras) es mínimo. Esto sugiere una buena utilización de recursos para esta configuración.
+  
+  \item \textbf{Efecto del paralelismo:} Con 8 hilos (\cref{fig:paraver_8threads}), la ejecución muestra un balance adecuado, aunque se pueden observar pequeños periodos de inactividad debido a la sincronización y la gestión de tareas.
+  
+  \item \textbf{Overhead y saturación:} En las configuraciones de 16 (\cref{fig:paraver_16threads}) y 32 hilos (\cref{fig:paraver_32threads}), el paralelismo introduce mayores periodos de inactividad y una mayor fragmentación del trabajo. Esto indica un overhead creciente asociado con la gestión de más hebras y una posible saturación del sistema.
+  
+  \item \textbf{Escalabilidad limitada:} Aunque incrementar el número de hilos reduce el tiempo de ejecución hasta cierto punto, las visualizaciones sugieren que la eficiencia disminuye significativamente más allá de los 8 hilos debido al aumento de las regiones inactivas y las interrupciones.
+\end{itemize}
+
+En resumen, las visualizaciones obtenidas con Paraver confirman que la configuración de 8 hilos es la más eficiente para el sistema utilizado, maximizando el aprovechamiento de recursos y minimizando el overhead asociado con la paralelización.
+
 \section{Conclusión}
 
 Los resultados obtenidos en la ejecución de ambas versiones del algoritmo Monte Carlo para el cálculo de $\pi$ permiten analizar la influencia del tamaño de la muestra ($n$) en el tiempo de ejecución y destacar las mejoras alcanzadas mediante la paralelización con OpenMP.
