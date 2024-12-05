@@ -13,9 +13,10 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage[spanish]{cleveref}
 \usepackage{listings}
-\usepackage{titlesec} % For custom section titles
+\usepackage{titlesec}
+\usepackage[skip=10pt]{caption}
+\usepackage{tocloft}
 
-% Configuration for code listings
 \lstset{
   language=C++,
   basicstyle=\ttfamily\footnotesize,
@@ -26,12 +27,16 @@
   captionpos=b
 }
 
-% Rename listing components
 \renewcommand{\lstlistingname}{Fragmento}
-\crefname{lstlisting}{Fragmento}{Fragmentos}
+\crefname{lstlisting}{fragmento}{Fragmentos}
 \Crefname{lstlisting}{Fragmento}{Fragmentos}
+\crefname{table}{tabla}{tablas}
+\Crefname{table}{Tabla}{Tablas}
 
-% Custom index names
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\refname}{Referencias}
+
 \renewcommand{\contentsname}{Índice}
 \renewcommand{\listfigurename}{Índice de Figuras}
 \renewcommand{\listtablename}{Índice de Tablas}
@@ -57,11 +62,11 @@
   % General index
   \tableofcontents
   
-  % Index of Figures
-  \listoffigures
-  
   % Index of Tables
   \listoftables
+  
+  % Index of Figures
+  \listoffigures
   
   % Index of Code Listings
   \lstlistoflistings
@@ -125,7 +130,7 @@ Al ejecutar este algoritmo con un número suficientemente grande de muestras, es
     1.000.000 & 3,14032 \\
     \hline
     \end{tabular}
-    \caption{Aproximación de $\pi$ con diferentes números de muestras.}
+    \caption{Aproximación de $\pi$ con diferentes números de muestras}
     \label{tab:results}
 \end{table}
 
@@ -179,7 +184,7 @@ Para el análisis de perfil de la versión secuencial, se utilizó la herramient
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{./img/secuencial_profiling.png}
-  \caption{Perfil de tiempo de funciones en la versión secuencial.}
+  \caption{Perfil de tiempo de funciones en la versión secuencial}
   \label{fig:sec_profile}
 \end{figure}
 
@@ -215,7 +220,7 @@ A partir del análisis del perfil, se identifican algunas funciones que serían 
 En términos de dependencias, la única dependencia importante se encuentra en la acumulación de la cuenta total de puntos dentro del círculo. Para resolver esto, se puede utilizar una reducción en OpenMP, evitando así el uso de operaciones atómicas que puedan introducir contención y reducir el rendimiento. Por lo tanto y para resumir, se propone dividir las iteraciones del cálculo principal y la generación de puntos aleatorios entre hilos, combinando los resultados parciales al final del cálculo.
 
 \section{Paralelización del Algoritmo}
-Como se mencionó en la propuesta de paralelización, se utilizó OpenMP para implementar la versión paralela del método Monte Carlo para el cálculo aproximado de $\pi$. Dicha implementación puede apreciarse a continuación en el \cref{lst:parallel}. Cabe destacar que las pruebas fueron realizadas con 40 hilos de procesamiento.
+Como se mencionó en la propuesta de paralelización, se utilizó OpenMP para implementar la versión paralela del método Monte Carlo para el cálculo aproximado de $\pi$. Dicha implementación puede apreciarse a continuación en el \cref{lst:parallel}.
 
 \begin{lstlisting}[caption={Implementación Paralela de Monte Carlo en C++}, label={lst:parallel}]
 double parallel(long n, int num_threads) {
@@ -256,7 +261,7 @@ La lógica dentro del ciclo \texttt{for} se adapta para que cada hilo comience e
 Finalmente, al finalizar la sección paralela, se suman los resultados parciales de cada hilo para obtener el valor aproximado de $\pi$, lo cual se devuelve como resultado de la función.
 
 \subsection{Datos de Prueba}
-Para analizar el comportamiento de la versión paralela del algoritmo Monte Carlo, se realizaron pruebas con los mismos datos utilizados al medir el tiempo de ejecución de la implementación secuencial.
+Para analizar el comportamiento de la versión paralela del algoritmo Monte Carlo, se realizaron pruebas con los mismos datos utilizados al medir el tiempo de ejecución de la implementación secuencial. Cabe destacar que las pruebas fueron realizadas con 32 hilos de procesamiento.
 
 \begin{table}[H]
 	\centering
@@ -302,13 +307,20 @@ A continuación, en la \cref{fig:efficiency}, podemos ver la comparación de tie
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{./img/efficiency.png}
-  \caption{Gráfico comparativo de tiempos de ejecución: Secuencial vs Paralelo.}
+  \includegraphics[width=0.9\textwidth]{./img/efficiency.png}
+  \caption{Gráfico comparativo de tiempos de ejecución: Secuencial vs Paralelo}
   \label{fig:efficiency}
 \end{figure}
 
 \subsection{Conclusión General}
 
 Estos resultados demuestran la efectividad de la paralelización para acelerar el cálculo del algoritmo Monte Carlo en aplicaciones intensivas de cómputo, alcanzando una eficiencia cercana al máximo teórico en esta configuración. OpenMP, en este contexto, logra optimizar el uso de los recursos de hardware, haciendo posible el cálculo de alto volumen en tiempos considerablemente reducidos.
+
+TODO: 
+ - Especificar nuevo build setup
+ - Hablar de Afinidad
+ - Especificar mejor el sistema y los hilos
+ - Mostrar visualización con paraver
+ - 
 
 \end{document}
