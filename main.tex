@@ -320,6 +320,91 @@ Es importante destacar varios aspectos de los resultados:
 
 Estos resultados demuestran la importancia de ajustar el número de hilos en función de la arquitectura del sistema y las características del problema a resolver.
 
+\section{Herramientas de Análisis de Rendimiento}
+Para comprender en profundidad el comportamiento de nuestro algoritmo paralelo, utilizamos un conjunto de herramientas especializadas de análisis de rendimiento. Esta sección detalla las herramientas empleadas y su propósito específico en nuestro análisis.
+
+\subsection{Instrumentación del Código}
+La instrumentación es el proceso de insertar código adicional en el programa para recopilar información sobre su comportamiento durante la ejecución. En este caso, se utilizó la instrumentación para:
+
+\begin{itemize}
+  \item Medir los tiempos precisos de ejecución de diferentes secciones del código
+  \item Rastrear la creación y sincronización de hilos
+  \item Monitorear el uso de recursos del sistema
+  \item Identificar patrones de acceso a memoria y posibles cuellos de botella
+\end{itemize}
+
+Para realizar la instrumentación, utilizamos la biblioteca \texttt{libunwind} junto con OpenMP, que nos permite capturar eventos relevantes sin modificar significativamente el comportamiento del programa.
+
+\subsection{Captura de Trazas}
+Las trazas son registros detallados de eventos que ocurren durante la ejecución del programa. En nuestro análisis, capturamos trazas para:
+
+\begin{itemize}
+  \item Registrar la secuencia temporal de eventos de paralelización
+  \item Documentar los patrones de comunicación entre hilos
+  \item Medir los tiempos de espera y sincronización
+  \item Analizar la distribución de carga de trabajo entre hilos
+\end{itemize}
+
+Utilizamos la herramienta Extrae \cite{mpi2prv} para generar archivos de trazas en formato \texttt{.prv}, que pueden ser analizados posteriormente con Paraver. La captura de trazas se realizó con diferentes configuraciones de hilos (4, 8, 16 y 32) para comprender cómo escala nuestro algoritmo.
+
+\subsection{Análisis con Paraver}
+Paraver \cite{paraver} es una herramienta de visualización y análisis de rendimiento que nos permite interpretar las trazas capturadas. La utilizamos específicamente para:
+
+\begin{itemize}
+  \item Visualizar la línea temporal de ejecución de cada hilo
+  \item Identificar patrones de comportamiento en la paralelización
+  \item Detectar desbalances en la carga de trabajo
+  \item Analizar la eficiencia de la sincronización entre hilos
+\end{itemize}
+
+En las visualizaciones de Paraver (Figuras \ref{fig:paraver_4threads}-\ref{fig:paraver_32threads}), los colores representan diferentes estados de los hilos:
+\begin{itemize}
+  \item Verde: Tiempo de cómputo activo
+  \item Rojo: Tiempo en operaciones de sincronización
+  \item Azul: Tiempo en operaciones de comunicación
+  \item Negro: Tiempo de inactividad
+\end{itemize}
+
+\section{Análisis de los Resultados de Paraver}
+El análisis detallado de las trazas capturadas con Paraver revela patrones significativos en el comportamiento del algoritmo bajo diferentes configuraciones de paralelización. A continuación, se presenta un análisis comprensivo de cada configuración y sus implicaciones para el rendimiento global del sistema.
+
+\subsection{Análisis por Número de Hilos}
+La \cref{fig:paraver_4threads} muestra el comportamiento del algoritmo con 4 hilos, donde se observa una distribución altamente eficiente de la carga de trabajo. El predominio de regiones verdes en la visualización indica un alto porcentaje de tiempo dedicado al cómputo efectivo, con períodos mínimos de inactividad. La sincronización entre hilos es eficiente, como se evidencia por la escasa presencia de regiones rojas en la traza.
+
+Para la configuración de 8 hilos, ilustrada en la \cref{fig:paraver_8threads}, el rendimiento mantiene un nivel óptimo de eficiencia. Si bien se observa un ligero incremento en los tiempos de sincronización, la distribución del trabajo permanece balanceada. Esta configuración representa el punto óptimo de equilibrio entre el grado de paralelización y el overhead asociado.
+
+Al incrementar a 16 hilos, como se aprecia en la \cref{fig:paraver_16threads}, comenzamos a observar los primeros signos significativos de degradación en la eficiencia. Las trazas muestran un incremento notable en los tiempos de sincronización y una mayor fragmentación en la distribución del trabajo. Los períodos de inactividad se vuelven más frecuentes, sugiriendo que el sistema comienza a mostrar signos de saturación.
+
+Finalmente, la configuración de 32 hilos, representada en la \cref{fig:paraver_32threads}, evidencia una clara saturación del sistema. Las trazas muestran una alta fragmentación del trabajo, con tiempos de sincronización significativamente mayores y extensos períodos de inactividad. Esta configuración demuestra que hemos sobrepasado el punto óptimo de paralelización para nuestra arquitectura específica.
+
+\subsection{Optimización y Mejoras Potenciales}
+El análisis exhaustivo de las trazas de Paraver nos permite identificar varias áreas clave para la optimización del algoritmo:
+
+\begin{itemize}
+  \item \textbf{Ajuste de Granularidad}: Para configuraciones que exceden los 8 hilos, una estrategia de división más gruesa del trabajo podría reducir el overhead de sincronización y mejorar el rendimiento global.
+  
+  \item \textbf{Optimización del Balanceo de Carga}: Si bien la distribución de trabajo es generalmente eficiente, existe margen para mejoras en el balanceo de carga, especialmente en configuraciones que superan los 16 hilos.
+  
+  \item \textbf{Gestión de Recursos}: Las visualizaciones sugieren que una asignación más inteligente de recursos, particularmente en la distribución de trabajo entre hilos, podría mejorar la eficiencia general del sistema.
+  
+  \item \textbf{Límites de Escalabilidad}: Los resultados confirman que la escalabilidad óptima se alcanza con 8 hilos en nuestra arquitectura. Este hallazgo es fundamental para establecer recomendaciones prácticas de implementación y para futuros desarrollos.
+\end{itemize}
+
+Este análisis detallado nos proporciona una base sólida para futuras optimizaciones del algoritmo, permitiéndonos identificar con precisión los puntos críticos donde se pueden realizar mejoras significativas.
+
+\subsection{Implicaciones para la Optimización}
+El análisis con Paraver nos permite identificar varias áreas de mejora:
+
+\begin{itemize}
+  \item \textbf{Granularidad del Trabajo}: Los resultados sugieren que podríamos beneficiarnos de una división más gruesa del trabajo para configuraciones con más de 8 hilos, reduciendo así el overhead de sincronización.
+  
+  \item \textbf{Balanceo de Carga}: Aunque la distribución es generalmente buena, hay oportunidades para mejorar el balanceo en configuraciones de más de 16 hilos.
+  
+  \item \textbf{Gestión de Recursos}: Las visualizaciones indican que podríamos optimizar el uso de recursos ajustando la asignación de trabajo según el número de hilos disponibles.
+  
+  \item \textbf{Límites de Escalabilidad}: El análisis confirma que la escalabilidad óptima se alcanza con 8 hilos en nuestra arquitectura específica, sugiriendo que este debería ser el límite práctico para nuestra implementación actual.
+\end{itemize}
+
 \subsection{Visualización con Paraver}
 
 Para complementar el análisis del rendimiento, se utilizó la herramienta Paraver \cite{paraver} para visualizar el comportamiento del algoritmo Monte Carlo en configuraciones de 4, 8, 16 y 32 hilos. A continuación, se presentan las visualizaciones obtenidas:
@@ -404,6 +489,24 @@ La precisión en la aproximación de $\pi$ se mantiene consistente entre ambas i
 Las visualizaciones de Paraver han sido fundamentales para comprender el comportamiento del algoritmo bajo diferentes configuraciones de paralelización, permitiendo identificar los patrones de ejecución y los factores que afectan el rendimiento. Este análisis detallado proporciona información valiosa para la optimización de aplicaciones similares que requieren procesamiento intensivo de datos.
 
 En conclusión, la implementación paralela utilizando OpenMP demuestra ser una solución efectiva para mejorar el rendimiento del algoritmo Monte Carlo, especialmente en escenarios que requieren un alto número de muestras. La mejora en los tiempos de ejecución hace que esta aproximación sea práctica para aplicaciones que necesitan cálculos precisos de $\pi$ en tiempo real o con restricciones temporales significativas.
+
+\section{Trabajo Futuro}
+
+El presente trabajo establece una base para futuras investigaciones y mejoras en la implementación del algoritmo Monte Carlo para la aproximación de $\pi$. Se proponen las siguientes líneas de investigación:
+
+\begin{itemize}
+  \item \textbf{Implementación con CUDA:} Explorar la implementación del algoritmo utilizando CUDA para aprovechar el poder de procesamiento de las GPU modernas, lo que podría resultar en mejoras significativas de rendimiento.
+  
+  \item \textbf{Distribución en clúster:} Extender la paralelización a múltiples nodos utilizando MPI \cite{mpi} en combinación con OpenMP, permitiendo la ejecución en entornos de computación distribuida.
+  
+  \item \textbf{Optimización de memoria:} Investigar técnicas de optimización de memoria y patrones de acceso para mejorar el rendimiento en sistemas con diferentes jerarquías de memoria.
+  
+  \item \textbf{Comparativa con otros métodos:} Realizar un estudio comparativo con otros métodos de aproximación de $\pi$, evaluando precisión, rendimiento y escalabilidad.
+  
+  \item \textbf{Análisis de precisión:} Profundizar en el análisis estadístico de la precisión del método en relación con el número de muestras y su distribución entre hilos de ejecución.
+\end{itemize}
+
+Estas líneas de investigación permitirían mejorar tanto el rendimiento como la precisión del algoritmo, además de proporcionar información valiosa sobre las ventajas y limitaciones de diferentes enfoques de paralelización.
 
 \begin{thebibliography}{7}
   \bibitem{paraver}
